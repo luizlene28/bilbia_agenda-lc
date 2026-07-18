@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>📖 Bíblia Sagrada & Agenda Eletrônica</title>
+
+    <!-- Font Awesome (usado pela Agenda) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-deep: #0a0e17;
+            --bg-card: rgba(18, 24, 38, 0.8);
+            --gold: #e2b04a;
+            --gold-light: #f5d78c;
+            --gold-dark: #b8861e;
+            --blue-glass: rgba(30, 50, 80, 0.55);
+            --text: #e8e0d0;
+            --text-bright: #faf6ed;
+            --accent: #5b8cc9;
+            --accent2: #8b5cf6;
+            --danger: #e85d5d;
+            --success: #4cce7c;
+            --warning: #f0a84c;
+            --text-muted: #9a9ab0;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --glass: rgba(255, 255, 255, 0.04);
+            --shadow-gold: 0 0 30px rgba(226, 176, 74, 0.25);
+            --shadow-3d: 0 25px 60px rgba(0, 0, 0, 0.6);
+            --radius-sm: 14px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 40px;
+            --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Fundo azul gradiente estático, sem partículas */
+            background: linear-gradient(135deg, #0a1929 0%, #1a3a5c 50%, #0a1929 100%);
+            background-attachment: fixed;
+            font-family: var(--font-main);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        /* ============ SEÇÃO BÍBLIA ============ */
+        #secao-biblia {
+            position: relative;
+            z-index: 5;
+        }
+
+        header.biblia-header {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(20, 30, 50, 0.95) 0%, rgba(14, 20, 35, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 18px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-glass);
+            color: var(--text-bright);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        header .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        header .header-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            color: var(--text-bright);
+            text-shadow: 0 0 20px rgba(226, 176, 74, 0.3);
+        }
+
+        .cubo-3d-wrapper {
+            perspective: 700px;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cubo-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: girarCubo 12s infinite linear;
+            transition: transform 0.3s ease;
+        }
+        .cubo-3d-wrapper:hover .cubo-3d {
+            animation-play-state: paused;
+            transform: rotateX(-25deg) rotateY(35deg) scale(1.05);
+        }
+        .cubo-3d-wrapper:active .cubo-3d {
+            transform: rotateX(-25deg) rotateY(35deg) scale(0.9);
+        }
+        @keyframes girarCubo {
+            0% { transform: rotateX(-20deg) rotateY(0deg); }
+            100% { transform: rotateX(-20deg) rotateY(360deg); }
+        }
+        .face-cubo {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255, 215, 120, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-shadow: 0 0 18px rgba(226, 176, 74, 0.35) inset, 0 4px 15px rgba(0, 0, 0, 0.4);
+            font-weight: bold;
+            color: #f5d78c;
+            text-shadow: 0 0 10px rgba(245, 215, 140, 0.6);
+            transition: all 0.3s ease;
+        }
+        .face-frente { background: rgba(30, 45, 70, 0.7); transform: translateZ(25px); }
+        .face-tras { background: rgba(25, 38, 58, 0.7); transform: rotateY(180deg) translateZ(25px); }
+        .face-direita { background: rgba(28, 42, 65, 0.7); transform: rotateY(90deg) translateZ(25px); }
+        .face-esquerda { background: rgba(32, 48, 72, 0.7); transform: rotateY(-90deg) translateZ(25px); }
+        .face-topo { background: rgba(35, 52, 78, 0.75); transform: rotateX(90deg) translateZ(25px); }
+        .face-base { background: rgba(22, 34, 52, 0.7); transform: rotateX(-90deg) translateZ(25px); }
+
+        .status-indicator {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: rgba(20, 40, 25, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 8px 16px;
+            border-radius: var(--radius-xl);
+            color: #a8d8a8;
+            border: 1px solid rgba(80, 180, 80, 0.3);
+            box-shadow: 0 0 12px rgba(80, 180, 80, 0.15) inset, 0 4px 12px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            white-space: nowrap;
+            transition: all 0.4s ease;
+        }
+
+        .container {
+            padding: 20px 16px;
+            max-width: 820px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 5;
+        }
+
+        .testamento-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 28px 0 16px;
+            border-bottom: 2px solid rgba(226, 176, 74, 0.3);
+            padding-bottom: 10px;
+            position: relative;
+            flex-wrap: wrap;
+        }
+        .testamento-header .testamento-titulo {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            text-shadow: 0 0 14px rgba(226, 176, 74, 0.25);
+            white-space: nowrap;
+        }
+        .testamento-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--gold);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        .btn-ir-agenda {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: rgba(226, 176, 74, 0.15);
+            border: 1.5px solid rgba(226, 176, 74, 0.4);
+            border-radius: 30px;
+            color: #f5d78c;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-family: var(--font-main);
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+        .btn-ir-agenda:hover {
+            background: rgba(226, 176, 74, 0.3);
+            border-color: #f5d78c;
+            box-shadow: 0 0 20px rgba(226, 176, 74, 0.4);
+            transform: translateY(-2px);
+        }
+        .btn-ir-agenda:active {
+            transform: scale(0.95);
+        }
+
+        .grade-livros {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 22px;
+        }
+        .botao-livro {
+            background: #141f32;
+            border: 1px solid var(--border-glass);
+            color: #d5cebc;
+            padding: 11px 4px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .botao-livro::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .botao-livro:hover::before { opacity: 1; }
+        .botao-livro:hover {
+            background: rgba(40, 65, 100, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 215, 120, 0.2) inset, 0 0 20px rgba(226, 176, 74, 0.12);
+            color: #fff;
+            border-color: rgba(226, 176, 74, 0.35);
+        }
+        .botao-livro:active {
+            transform: translateY(0) scale(0.96);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.1s ease;
+        }
+        .botao-livro.selecionado {
+            background: linear-gradient(145deg, #c8921a 0%, #a67714 60%, #8b5e0e 100%);
+            color: #fffef5;
+            font-weight: 700;
+            border-color: #f5d78c;
+            box-shadow: 0 0 30px rgba(226, 176, 74, 0.55), 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 215, 120, 0.3) inset;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            animation: brilharSelecionado 2s ease-in-out infinite;
+            z-index: 2;
+        }
+        @keyframes brilharSelecionado {
+            0%, 100% { box-shadow: 0 0 30px rgba(226, 176, 74, 0.55), 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 215, 120, 0.3) inset; }
+            50% { box-shadow: 0 0 45px rgba(245, 200, 70, 0.75), 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(255, 230, 150, 0.45) inset; }
+        }
+
+        .livro-destaque {
+            background: rgba(22, 34, 55, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 22px 24px;
+            border-radius: var(--radius-md);
+            border-left: 6px solid var(--gold);
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: var(--shadow-gold), 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            border: 1px solid rgba(226, 176, 74, 0.25);
+            transition: all 0.4s ease;
+        }
+        .livro-destaque h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-bright);
+            text-shadow: 0 0 12px rgba(226, 176, 74, 0.2);
+        }
+        .livro-destaque span {
+            font-weight: 700;
+            color: var(--gold-light);
+            background: rgba(0, 0, 0, 0.35);
+            padding: 8px 18px;
+            border-radius: var(--radius-xl);
+            font-size: 0.95rem;
+            letter-spacing: 0.6px;
+            border: 1px solid rgba(226, 176, 74, 0.3);
+        }
+
+        .barra-capitulo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(18, 26, 40, 0.7);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: var(--radius-xl);
+            padding: 6px 6px;
+            margin-bottom: 22px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+            gap: 6px;
+        }
+        .btn-nav {
+            background: rgba(35, 55, 85, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            color: var(--gold-light);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.15rem;
+            cursor: pointer;
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-nav:hover:not(:disabled) {
+            background: rgba(55, 80, 120, 0.8);
+            transform: scale(1.08);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 20px rgba(226, 176, 74, 0.25);
+            border-color: rgba(226, 176, 74, 0.5);
+            color: #fff;
+        }
+        .btn-nav:active:not(:disabled) { transform: scale(0.9); transition: all 0.08s ease; }
+        .btn-nav:disabled { opacity: 0.25; cursor: not-allowed; box-shadow: none; filter: grayscale(0.6); }
+        .barra-capitulo select {
+            background: rgba(10, 16, 26, 0.8);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: #fff;
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 12px;
+            border-radius: var(--radius-xl);
+            flex: 1;
+            margin: 0 6px;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.5);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-main);
+            letter-spacing: 0.4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23f5d78c'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .verso {
+            background: rgba(16, 24, 38, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            margin: 14px 0;
+            padding: 22px 24px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--gold);
+            line-height: 1.9;
+            font-size: 1.35rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .verso::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(226, 176, 74, 0.03));
+            pointer-events: none;
+        }
+        .verso:hover {
+            border-left-color: #f5d78c;
+            border-left-width: 5px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 22px rgba(226, 176, 74, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+            transform: translateX(3px);
+            background: rgba(20, 30, 48, 0.75);
+        }
+        .verso b {
+            color: #fad46b;
+            margin-right: 12px;
+            font-size: 1.45rem;
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(250, 212, 107, 0.4);
+            letter-spacing: 0.5px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8a9bb5;
+            font-style: italic;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            animation: pulsarTexto 2s ease-in-out infinite;
+        }
+        @keyframes pulsarTexto {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* ============ SEÇÃO AGENDA ============ */
+        #secao-agenda {
+            position: relative;
+            z-index: 5;
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .scene {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1250px;
+            margin: 20px auto;
+            padding: 20px;
+            perspective: 1800px;
+            perspective-origin: 50% 40%;
+        }
+
+        .book {
+            display: flex;
+            transform-style: preserve-3d;
+            transform: rotateX(3deg);
+            gap: 0;
+            border-radius: 22px;
+            box-shadow: var(--shadow-3d), 0 0 0 1px rgba(255, 255, 255, 0.06);
+            position: relative;
+            transition: transform 0.5s ease;
+        }
+        .book:hover {
+            transform: rotateX(1.5deg) rotateY(-0.5deg);
+        }
+
+        .spine {
+            width: 18px;
+            min-width: 18px;
+            background: linear-gradient(180deg, #2a2a40 0%, #1a1a2e 30%, #252538 60%, #1a1a2e 80%, #2a2a40 100%);
+            border-radius: 4px;
+            position: relative;
+            z-index: 2;
+            box-shadow: inset 2px 0 8px rgba(0, 0, 0, 0.5), inset -2px 0 8px rgba(0, 0, 0, 0.5),
+                3px 0 15px rgba(0, 0, 0, 0.5), -3px 0 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .spine::after {
+            content: '';
+            position: absolute;
+            top: 15%;
+            bottom: 15%;
+            left: 3px;
+            right: 3px;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 12px,
+                    rgba(255, 255, 255, 0.04) 12px,
+                    rgba(255, 255, 255, 0.04) 13px);
+            border-radius: 2px;
+        }
+        .spine-dots {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 8px;
+            letter-spacing: 6px;
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .page-left {
+            flex: 1;
+            background: linear-gradient(160deg, #1e1e38 0%, #1a1a30 40%, #1c1c35 100%);
+            border-radius: 0 8px 8px 0;
+            padding: 28px 24px;
+            position: relative;
+            transform-origin: right center;
+            transform: rotateY(-1.5deg);
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.3), -8px 0 25px rgba(0, 0, 0, 0.5);
+            border-right: 1px solid rgba(0, 0, 0, 0.3);
+            transition: transform var(--transition);
+            z-index: 1;
+        }
+        .page-left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(to left, rgba(0, 0, 0, 0.35), transparent);
+            border-radius: 0 8px 8px 0;
+            pointer-events: none;
+        }
+
+        .page-right {
+            flex: 1;
+            background: linear-gradient(160deg, #1c1c34 0%, #18182c 40%, #1a1a32 100%);
+            border-radius: 8px 0 0 8px;
+            padding: 28px 24px;
+            position: relative;
+            transform-origin: left center;
+            transform: rotateY(1.5deg);
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.3), 8px 0 25px rgba(0, 0, 0, 0.5);
+            border-left: 1px solid rgba(0, 0, 0, 0.3);
+            transition: transform var(--transition);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .page-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.35), transparent);
+            border-radius: 8px 0 0 8px;
+            pointer-events: none;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .page-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #e8d5a3;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header h2 i {
+            font-size: 1.1rem;
+            color: var(--gold);
+            opacity: 0.8;
+        }
+        .page-header .subtitle {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-voltar-biblia {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            background: rgba(226, 176, 74, 0.15);
+            border: 1.5px solid rgba(226, 176, 74, 0.35);
+            border-radius: 30px;
+            color: #f5d78c;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            letter-spacing: 0.5px;
+            font-family: var(--font-main);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            width: auto;
+        }
+        .btn-voltar-biblia:hover {
+            background: rgba(226, 176, 74, 0.28);
+            border-color: rgba(226, 176, 74, 0.6);
+            box-shadow: 0 0 20px rgba(226, 176, 74, 0.35);
+            transform: translateX(-2px);
+        }
+        .btn-voltar-biblia:active {
+            transform: scale(0.95);
+        }
+
+        .btn-retornar {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+            background: rgba(212, 168, 83, 0.15);
+            border: 1px solid rgba(212, 168, 83, 0.3);
+            border-radius: 12px;
+            color: var(--gold-light);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            letter-spacing: 0.3px;
+            font-family: 'Inter', sans-serif;
+            z-index: 5;
+            width: auto;
+            align-self: flex-start;
+        }
+        .btn-retornar:hover {
+            background: rgba(212, 168, 83, 0.25);
+            border-color: rgba(212, 168, 83, 0.5);
+            transform: translateX(-2px);
+            box-shadow: 0 4px 12px rgba(180, 130, 40, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 13px;
+            position: relative;
+            z-index: 2;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #b0b0c8;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e8e8f0;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all var(--transition);
+            letter-spacing: 0.2px;
+        }
+        .input-group textarea {
+            min-height: 95px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.09);
+            box-shadow: 0 0 0 4px rgba(226, 176, 74, 0.1), 0 0 20px rgba(226, 176, 74, 0.05);
+            transform: translateY(-1px);
+        }
+        .input-group select {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e2b04a' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+        .input-group select option {
+            background: #1e1e35;
+            color: #e8e8f0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all var(--transition);
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #d4a853 0%, #b8862d 50%, #9a6d20 100%);
+            color: #0a0a0f;
+            box-shadow: 0 8px 25px rgba(180, 130, 40, 0.35);
+        }
+        .btn-save:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 35px rgba(200, 150, 50, 0.5);
+        }
+        .btn-save:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(180, 130, 40, 0.3);
+        }
+        .btn-save.editing-mode {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d3fd4 50%, #5a2db8 100%);
+            box-shadow: 0 8px 25px rgba(110, 60, 210, 0.35);
+        }
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.06);
+            color: #c0c0d0;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            margin-top: 8px;
+            display: none;
+        }
+        .btn-cancel.visible {
+            display: flex;
+        }
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 16px;
+            z-index: 2;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 13px 16px 13px 42px;
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e8e8f0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+        .search-box input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(91, 141, 239, 0.08);
+        }
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: color var(--transition);
+        }
+        .search-box input:focus+i {
+            color: var(--accent);
+        }
+
+        .eventos-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 200px;
+            max-height: 480px;
+            padding-right: 6px;
+            position: relative;
+            z-index: 2;
+            scroll-behavior: smooth;
+        }
+        .eventos-lista::-webkit-scrollbar { width: 5px; }
+        .eventos-lista::-webkit-scrollbar-track { background: transparent; border-radius: 10px; }
+        .eventos-lista::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        .eventos-lista::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+        .evento-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 16px 18px;
+            position: relative;
+            transition: all var(--transition);
+            animation: fadeInUp 0.4s ease forwards;
+            cursor: default;
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+        }
+        .evento-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateZ(8px) translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px) translateZ(-10px); }
+            to { opacity: 1; transform: translateY(0) translateZ(0); }
+        }
+        .evento-card.passado { opacity: 0.55; filter: grayscale(30%); }
+        .evento-card .evento-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .evento-card .evento-titulo {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #f0f0f8;
+            letter-spacing: 0.2px;
+            word-break: break-word;
+        }
+        .categoria-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .badge-trabalho { background: rgba(91, 141, 239, 0.2); color: #7aafff; border: 1px solid rgba(91, 141, 239, 0.3); }
+        .badge-estudo { background: rgba(240, 168, 76, 0.2); color: #f5c070; border: 1px solid rgba(240, 168, 76, 0.3); }
+        .badge-pessoal { background: rgba(76, 206, 124, 0.2); color: #6ee89a; border: 1px solid rgba(76, 206, 124, 0.3); }
+        .badge-importante { background: rgba(232, 93, 93, 0.2); color: #f08080; border: 1px solid rgba(232, 93, 93, 0.3); }
+
+        .evento-card .evento-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: #b0b0c8;
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+        }
+        .evento-card .evento-info span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 9px;
+            border-radius: 10px;
+        }
+        .evento-card .evento-comentario {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #c8c8d8;
+            white-space: pre-line;
+            word-break: break-word;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .evento-card .evento-acoes {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .evento-card .evento-acoes button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all var(--transition);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-edit { background: rgba(240, 168, 76, 0.2); color: #f5c070; border: 1px solid rgba(240, 168, 76, 0.3) !important; }
+        .btn-edit:hover { background: rgba(240, 168, 76, 0.35); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(200, 140, 50, 0.25); }
+        .btn-delete { background: rgba(232, 93, 93, 0.2); color: #f08080; border: 1px solid rgba(232, 93, 93, 0.3) !important; }
+        .btn-delete:hover { background: rgba(232, 93, 93, 0.35); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(200, 60, 60, 0.25); }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #6a6a80;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .empty-state i { font-size: 3rem; opacity: 0.4; color: #5a5a70; }
+        .empty-state p { font-size: 0.9rem; letter-spacing: 0.3px; }
+
+        .status-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+        .mini-stat {
+            flex: 1;
+            min-width: 90px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px 16px;
+            text-align: center;
+            transition: all var(--transition);
+        }
+        .mini-stat:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: translateZ(5px);
+        }
+        .mini-stat h4 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #d4a853, #e8c97a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .mini-stat p {
+            font-size: 0.7rem;
+            color: #8a8aa0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .relogio-display {
+            font-size: 0.9rem;
+            color: #c0c0d8;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            animation: slideInRight 0.4s ease, fadeOutRight 0.4s ease 2.5s forwards;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            max-width: 380px;
+            backdrop-filter: blur(10px);
+            font-family: 'Inter', sans-serif;
+        }
+        .toast-success { background: rgba(46, 180, 100, 0.9); border: 1px solid rgba(76, 206, 124, 0.5); }
+        .toast-info { background: rgba(91, 141, 239, 0.9); border: 1px solid rgba(120, 160, 250, 0.5); }
+        .toast-warning { background: rgba(200, 140, 50, 0.9); border: 1px solid rgba(240, 168, 76, 0.5); }
+        @keyframes slideInRight {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInModal 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+        .modal-dialog {
+            background: #1e1e35;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            padding: 28px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            animation: scaleIn 0.35s ease;
+        }
+        .modal-dialog h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 10px; color: #e8d5a3; }
+        .modal-dialog p { color: #b0b0c8; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.5; }
+        .modal-dialog .modal-btns { display: flex; gap: 10px; }
+        .modal-dialog .modal-btns button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            transition: all var(--transition);
+            font-size: 0.9rem;
+        }
+        .modal-btn-cancel { background: rgba(255, 255, 255, 0.08); color: #c0c0d0; }
+        .modal-btn-confirm { background: #e85d5d; color: #fff; }
+        .modal-btn-confirm:hover { background: #f04040; box-shadow: 0 8px 20px rgba(232, 60, 60, 0.4); }
+        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .mobile-tabs {
+            display: none;
+            gap: 6px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 18px;
+            padding: 5px;
+        }
+        .mobile-tab {
+            flex: 1;
+            padding: 11px;
+            text-align: center;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: all var(--transition);
+            letter-spacing: 0.3px;
+            border: none;
+            background: transparent;
+            color: #a0a0b8;
+            font-family: 'Inter', sans-serif;
+        }
+        .mobile-tab.active {
+            background: rgba(212, 168, 83, 0.2);
+            color: #e8d5a3;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            color: #5a5a70;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 2;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(226, 176, 74, 0.25); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(226, 176, 74, 0.45); }
+
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            padding-top: 100%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0);
+            opacity: 1;
+            pointer-events: none;
+            top: 50%;
+            left: 50%;
+            margin-top: -50%;
+            margin-left: -50%;
+            transition: transform 0.5s ease, opacity 0.7s ease;
+        }
+        .ripple:active::after {
+            transform: scale(3);
+            opacity: 0;
+            transition: 0s;
+        }
+
+        /* ============ RESPONSIVO ============ */
+        @media (max-width: 900px) {
+            .book { flex-direction: column; transform: rotateX(1deg) !important; border-radius: 20px; }
+            .book:hover { transform: rotateX(0.5deg) !important; }
+            .spine { display: none; }
+            .page-left, .page-right { transform: none !important; border-radius: 0 !important; padding: 20px 16px; }
+            .page-left { border-radius: 20px 20px 0 0 !important; border-right: none; border-bottom: 2px solid rgba(255, 255, 255, 0.08); }
+            .page-right { border-radius: 0 0 20px 20px !important; border-left: none; }
+            .page-left::before, .page-right::before { display: none; }
+            .mobile-tabs { display: flex; }
+            .page-left.collapsed-mobile, .page-right.collapsed-mobile { display: none; }
+            .eventos-lista { max-height: 350px; }
+            .status-row { gap: 8px; }
+            .mini-stat { padding: 10px 12px; }
+            .mini-stat h4 { font-size: 1.4rem; }
+            .toast-container { top: 10px; right: 10px; left: 10px; }
+            .toast { max-width: 100%; font-size: 0.82rem; }
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 10px 8px; }
+            header { padding: 14px 10px; gap: 8px; }
+            header .header-title { font-size: 1rem; }
+            .cubo-3d-wrapper { width: 38px; height: 38px; }
+            .face-cubo { width: 38px; height: 38px; font-size: 1.1rem; }
+            .face-frente { transform: translateZ(19px); }
+            .face-tras { transform: rotateY(180deg) translateZ(19px); }
+            .face-direita { transform: rotateY(90deg) translateZ(19px); }
+            .face-esquerda { transform: rotateY(-90deg) translateZ(19px); }
+            .face-topo { transform: rotateX(90deg) translateZ(19px); }
+            .face-base { transform: rotateX(-90deg) translateZ(19px); }
+            .grade-livros { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
+            .botao-livro { padding: 10px 2px !important; font-size: 0.75rem !important; border-radius: 8px !important; }
+            .testamento-header .testamento-titulo { font-size: 0.95rem !important; }
+            .btn-ir-agenda { padding: 6px 12px !important; font-size: 0.75rem !important; }
+            .livro-destaque { padding: 14px !important; border-radius: 12px !important; }
+            .verso { padding: 14px !important; border-radius: 10px !important; }
+            .barra-capitulo select { font-size: 0.8rem !important; padding: 8px !important; }
+            .btn-nav { width: 38px !important; height: 38px !important; font-size: 1rem !important; }
+            .scene { padding: 10px; }
+            .page-left, .page-right { padding: 14px 10px; }
+            .btn-voltar-biblia { padding: 8px 14px; font-size: 0.8rem; }
+        }
+
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .grade-livros { grid-template-columns: repeat(6, 1fr) !important; }
+        }
+        @media (min-width: 1025px) {
+            .grade-livros { grid-template-columns: repeat(9, 1fr) !important; gap: 8px !important; }
+            .container { max-width: 920px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== SEÇÃO BÍBLIA ==================== -->
+    <div id="secao-biblia">
+        <header class="biblia-header">
+            <div class="header-left">
+                <div class="cubo-3d-wrapper" title="Clique para girar o cubo" onclick="this.querySelector('.cubo-3d').style.animationPlayState='running'; setTimeout(()=>{this.querySelector('.cubo-3d').style.animationPlayState='';},3000);">
+                    <div class="cubo-3d">
+                        <div class="face-cubo face-frente">📖</div>
+                        <div class="face-cubo face-tras">✝️</div>
+                        <div class="face-cubo face-direita">🕊️</div>
+                        <div class="face-cubo face-esquerda">🔥</div>
+                        <div class="face-cubo face-topo">👑</div>
+                        <div class="face-cubo face-base">🌟</div>
+                    </div>
+                </div>
+                <span class="header-title">📖 Bíblia Sagrada</span>
+            </div>
+            <span id="statusApi" class="status-indicator">📴 Offline</span>
+        </header>
+
+        <div class="container">
+            <!-- ANTIGO TESTAMENTO COM BOTÃO AGENDA -->
+            <div class="testamento-header">
+                <div class="testamento-titulo">📜 ANTIGO TESTAMENTO</div>
+                <button class="btn-ir-agenda" onclick="mostrarAgenda()" title="Ir para a Agenda">
+                    📒 Agenda
+                </button>
+            </div>
+            <div class="grade-livros" id="botoesVT"></div>
+
+            <!-- NOVO TESTAMENTO COM BOTÃO AGENDA -->
+            <div class="testamento-header">
+                <div class="testamento-titulo">✝️ NOVO TESTAMENTO</div>
+                <button class="btn-ir-agenda" onclick="mostrarAgenda()" title="Ir para a Agenda">
+                    📒 Agenda
+                </button>
+            </div>
+            <div class="grade-livros" id="botoesNT"></div>
+
+            <div class="livro-destaque">
+                <h2 id="nomeLivroAtual">Gênesis</h2>
+                <span id="infoCapitulo">Cap. 1</span>
+            </div>
+
+            <div class="barra-capitulo">
+                <button id="btnAnterior" class="btn-nav ripple" onclick="mudarCapitulo(-1)">◀</button>
+                <select id="selectCapituloTopo" onchange="aoMudarCapituloTopo()"></select>
+                <button id="btnProximo" class="btn-nav ripple" onclick="mudarCapitulo(1)">▶</button>
+            </div>
+
+            <div id="conteudo">
+                <div class="loading">Carregando a Palavra de Deus...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SEÇÃO AGENDA ==================== -->
+    <div id="secao-agenda">
+        <div class="scene">
+            <div class="book" id="bookContainer">
+                <div class="spine">
+                    <span class="spine-dots">A G E N D A</span>
+                </div>
+
+                <div class="page-left" id="pageLeft">
+                    <button class="btn-voltar-biblia" onclick="mostrarBiblia()" title="Voltar para a Bíblia Sagrada">
+                        📖 Voltar à Bíblia
+                    </button>
+
+                    <div class="mobile-tabs" id="mobileTabs">
+                        <button class="mobile-tab active" data-page="form" onclick="switchMobileTab('form')">
+                            <i class="fa-solid fa-pen-to-square"></i>&nbsp; Novo
+                        </button>
+                        <button class="mobile-tab" data-page="list" onclick="switchMobileTab('list')">
+                            <i class="fa-solid fa-list-ul"></i>&nbsp; Eventos
+                        </button>
+                    </div>
+
+                    <div class="page-header">
+                        <h2><i class="fa-solid fa-feather-pointed"></i> Agenda-LC</h2>
+                        <p class="subtitle">Escreva nas páginas da sua agenda</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Título do evento</label>
+                        <input type="text" id="titulo" placeholder="Ex: Reunião com cliente...">
+                    </div>
+                    <div class="input-group">
+                        <label>Data</label>
+                        <input type="date" id="data">
+                    </div>
+                    <div class="input-group">
+                        <label>Horário</label>
+                        <input type="time" id="hora">
+                    </div>
+                    <div class="input-group">
+                        <label>Categoria</label>
+                        <select id="categoria">
+                            <option value="Trabalho">💼 Trabalho</option>
+                            <option value="Estudo">📚 Estudo</option>
+                            <option value="Pessoal">🌿 Pessoal</option>
+                            <option value="Importante">⭐ Importante</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Descrição / Comentário</label>
+                        <textarea id="comentario" placeholder="Detalhes do compromisso..."></textarea>
+                    </div>
+
+                    <button class="btn btn-save" id="btnSave" onclick="salvarEvento()">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Evento
+                    </button>
+                    <button class="btn btn-cancel" id="btnCancel" onclick="cancelarEdicao()">
+                        <i class="fa-solid fa-xmark"></i> Cancelar Edição
+                    </button>
+                </div>
+
+                <div class="page-right" id="pageRight">
+                    <button class="btn-retornar" id="btnRetornar" onclick="retornarParaFormulario()" title="Voltar para o formulário">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar ao formulário
+                    </button>
+
+                    <div class="page-header">
+                        <h2><i class="fa-solid fa-book-open"></i> Agenda-LC</h2>
+                        <p class="subtitle">Seus compromissos anotados</p>
+                    </div>
+
+                    <div class="status-row">
+                        <div class="mini-stat">
+                            <h4 id="totalEventos">0</h4>
+                            <p>Total</p>
+                        </div>
+                        <div class="mini-stat">
+                            <h4 id="totalHoje">0</h4>
+                            <p>Hoje</p>
+                        </div>
+                        <div class="mini-stat">
+                            <h4 id="totalFuturos">0</h4>
+                            <p>Futuros</p>
+                        </div>
+                    </div>
+
+                    <div class="relogio-display" id="relogioDisplay">
+                        <i class="fa-regular fa-clock"></i>&nbsp; Carregando...
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="buscar" placeholder="Pesquisar por título ou categoria..." oninput="renderizarEventos()">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+
+                    <div class="eventos-lista" id="listaEventos"></div>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                Agenda Eletrônica Premium &copy; 2026 • Design 3D Book
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal de confirmação -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none;">
+        <div class="modal-dialog">
+            <h3><i class="fa-solid fa-triangle-exclamation" style="color:#e8a840;"></i> Confirmar Exclusão</h3>
+            <p id="modalMensagem">Deseja realmente excluir este evento? Esta ação não pode ser desfeita.</p>
+            <div class="modal-btns">
+                <button class="modal-btn-cancel" onclick="fecharModal()">Cancelar</button>
+                <button class="modal-btn-confirm" id="modalBtnConfirm" onclick="confirmarExclusao()">
+                    <i class="fa-solid fa-trash"></i> Excluir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        "use strict";
+
+        // ==================== NAVEGAÇÃO ENTRE BÍBLIA E AGENDA ====================
+        function mostrarAgenda() {
+            document.getElementById('secao-biblia').style.display = 'none';
+            document.getElementById('secao-agenda').style.display = 'block';
+            window.dispatchEvent(new Event('resize'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function mostrarBiblia() {
+            document.getElementById('secao-agenda').style.display = 'none';
+            document.getElementById('secao-biblia').style.display = 'block';
+            window.dispatchEvent(new Event('resize'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ============ LÓGICA DA BÍBLIA ============
+        let BIBLIA_DADOS = null;
+        let parteCarregada = 0;
+        let livroAtual = 'gn';
+        let capituloAtual = 1;
+
+        const LIVROS_API = {
+            'gn': { nome: "Gênesis", abrev: "GENE", capitulos: 50, testament: "VT" },
+            'ex': { nome: "Êxodo", abrev: "EXOD", capitulos: 40, testament: "VT" },
+            'lv': { nome: "Levítico", abrev: "LEVI", capitulos: 27, testament: "VT" },
+            'nm': { nome: "Números", abrev: "NUME", capitulos: 36, testament: "VT" },
+            'dt': { nome: "Deuteronômio", abrev: "DEUT", capitulos: 34, testament: "VT" },
+            'js': { nome: "Josué", abrev: "JOSU", capitulos: 24, testament: "VT" },
+            'jz': { nome: "Juízes", abrev: "JUIZ", capitulos: 21, testament: "VT" },
+            'rt': { nome: "Rute", abrev: "RUTE", capitulos: 4, testament: "VT" },
+            '1sm': { nome: "1 Samuel", abrev: "1SAM", capitulos: 31, testament: "VT" },
+            '2sm': { nome: "2 Samuel", abrev: "2SAM", capitulos: 24, testament: "VT" },
+            '1rs': { nome: "1 Reis", abrev: "1REI", capitulos: 22, testament: "VT" },
+            '2rs': { nome: "2 Reis", abrev: "2REI", capitulos: 25, testament: "VT" },
+            '1cr': { nome: "1 Crônicas", abrev: "1CRO", capitulos: 29, testament: "VT" },
+            '2cr': { nome: "2 Crônicas", abrev: "2CRO", capitulos: 36, testament: "VT" },
+            'ed': { nome: "Esdras", abrev: "ESDR", capitulos: 10, testament: "VT" },
+            'ne': { nome: "Neemias", abrev: "NEEM", capitulos: 13, testament: "VT" },
+            'et': { nome: "Ester", abrev: "ESTE", capitulos: 10, testament: "VT" },
+            'jó': { nome: "Jó", abrev: "JÓ  ", capitulos: 42, testament: "VT" },
+            'sl': { nome: "Salmos", abrev: "SALM", capitulos: 150, testament: "VT" },
+            'pv': { nome: "Provérbios", abrev: "PROV", capitulos: 31, testament: "VT" },
+            'ec': { nome: "Eclesiastes", abrev: "ECLE", capitulos: 12, testament: "VT" },
+            'ct': { nome: "Cânticos", abrev: "CANT", capitulos: 8, testament: "VT" },
+            'is': { nome: "Isaías", abrev: "ISAI", capitulos: 66, testament: "VT" },
+            'jr': { nome: "Jeremias", abrev: "JERE", capitulos: 52, testament: "VT" },
+            'lm': { nome: "Lamentações", abrev: "LAME", capitulos: 5, testament: "VT" },
+            'ez': { nome: "Ezequiel", abrev: "EZEQ", capitulos: 48, testament: "VT" },
+            'dn': { nome: "Daniel", abrev: "DANI", capitulos: 12, testament: "VT" },
+            'os': { nome: "Oseias", abrev: "OSEI", capitulos: 14, testament: "VT" },
+            'jl': { nome: "Joel", abrev: "JOEL", capitulos: 3, testament: "VT" },
+            'am': { nome: "Amós", abrev: "AMÓS", capitulos: 9, testament: "VT" },
+            'ob': { nome: "Obadias", abrev: "OBAD", capitulos: 1, testament: "VT" },
+            'jn': { nome: "Jonas", abrev: "JONA", capitulos: 4, testament: "VT" },
+            'mq': { nome: "Miqueias", abrev: "MIQU", capitulos: 7, testament: "VT" },
+            'na': { nome: "Naum", abrev: "NAUM", capitulos: 3, testament: "VT" },
+            'hc': { nome: "Habacuque", abrev: "HABA", capitulos: 3, testament: "VT" },
+            'sf': { nome: "Sofonias", abrev: "SOFO", capitulos: 3, testament: "VT" },
+            'ag': { nome: "Ageu", abrev: "AGEU", capitulos: 2, testament: "VT" },
+            'zc': { nome: "Zacarias", abrev: "ZACA", capitulos: 14, testament: "VT" },
+            'ml': { nome: "Malaquias", abrev: "MALA", capitulos: 4, testament: "VT" },
+            'mt': { nome: "Mateus", abrev: "MATE", capitulos: 28, testament: "NT" },
+            'mc': { nome: "Marcos", abrev: "MARC", capitulos: 16, testament: "NT" },
+            'lc': { nome: "Lucas", abrev: "LUCA", capitulos: 24, testament: "NT" },
+            'jo': { nome: "João", abrev: "JOÃO", capitulos: 21, testament: "NT" },
+            'at': { nome: "Atos", abrev: "ATOS", capitulos: 28, testament: "NT" },
+            'rm': { nome: "Romanos", abrev: "ROMA", capitulos: 16, testament: "NT" },
+            '1co': { nome: "1 Coríntios", abrev: "1COR", capitulos: 16, testament: "NT" },
+            '2co': { nome: "2 Coríntios", abrev: "2COR", capitulos: 13, testament: "NT" },
+            'gl': { nome: "Gálatas", abrev: "GALA", capitulos: 6, testament: "NT" },
+            'ef': { nome: "Efésios", abrev: "EFES", capitulos: 6, testament: "NT" },
+            'fp': { nome: "Filipenses", abrev: "FILI", capitulos: 4, testament: "NT" },
+            'cl': { nome: "Colossenses", abrev: "COLO", capitulos: 4, testament: "NT" },
+            '1ts': { nome: "1 Tessalonicenses", abrev: "1TES", capitulos: 5, testament: "NT" },
+            '2ts': { nome: "2 Tessalonicenses", abrev: "2TES", capitulos: 3, testament: "NT" },
+            '1tm': { nome: "1 Timóteo", abrev: "1TIM", capitulos: 6, testament: "NT" },
+            '2tm': { nome: "2 Timóteo", abrev: "2TIM", capitulos: 4, testament: "NT" },
+            'tt': { nome: "Tito", abrev: "TITO", capitulos: 3, testament: "NT" },
+            'fm': { nome: "Filemom", abrev: "FILE", capitulos: 1, testament: "NT" },
+            'hb': { nome: "Hebreus", abrev: "HEBR", capitulos: 13, testament: "NT" },
+            'tg': { nome: "Tiago", abrev: "TIAG", capitulos: 5, testament: "NT" },
+            '1pe': { nome: "1 Pedro", abrev: "1PED", capitulos: 5, testament: "NT" },
+            '2pe': { nome: "2 Pedro", abrev: "2PED", capitulos: 3, testament: "NT" },
+            '1jo': { nome: "1 João", abrev: "1JOA", capitulos: 5, testament: "NT" },
+            '2jo': { nome: "2 João", abrev: "2JOA", capitulos: 1, testament: "NT" },
+            '3jo': { nome: "3 João", abrev: "3JOA", capitulos: 1, testament: "NT" },
+            'jd': { nome: "Judas", abrev: "JUDA", capitulos: 1, testament: "NT" },
+            'ap': { nome: "Apocalipse", abrev: "APOC", capitulos: 22, testament: "NT" }
+        };
+
+        const DISTRIBUICAO_PARTES = {
+            1: ['gn', 'ex', 'lv', 'nm', 'dt', 'js', 'jz', 'rt', '1sm', '2sm', '1rs', '2rs', '1cr', '2cr', 'ed', 'ne', 'et', 'jó'],
+            2: ['sl', 'pv', 'ec', 'ct', 'is', 'jr', 'lm', 'ez', 'dn', 'os', 'jl', 'am', 'ob', 'jn', 'mq', 'na', 'hc', 'sf', 'ag', 'zc', 'ml'],
+            3: ['mt', 'mc', 'lc', 'jo', 'at', 'rm', '1co', '2co', 'gl', 'ef', 'fp', 'cl', '1ts', '2ts', '1tm', '2tm', 'tt', 'fm', 'hb', 'tg', '1pe', '2pe', '1jo', '2jo', '3jo', 'jd', 'ap']
+        };
+
+        const LIVRO_PARA_NOME_JSON = {
+            'gn': 'Gn', 'ex': 'Ex', 'lv': 'Lv', 'nm': 'Nm', 'dt': 'Dt', 'js': 'Js', 'jz': 'Jz', 'rt': 'Rt', '1sm': '1Sm',
+            '2sm': '2Sm', '1rs': '1Rs', '2rs': '2Rs', '1cr': '1Cr', '2cr': '2Cr', 'ed': 'Ed', 'ne': 'Ne', 'et': 'Et',
+            'jó': 'Jó', 'sl': 'Sl', 'pv': 'Pv', 'ec': 'Ec', 'ct': 'Ct', 'is': 'Is', 'jr': 'Jr', 'lm': 'Lm', 'ez': 'Ez',
+            'dn': 'Dn', 'os': 'Os', 'jl': 'Jl', 'am': 'Am', 'ob': 'Ob', 'jn': 'Jn', 'mq': 'Mq', 'na': 'Na', 'hc': 'Hc',
+            'sf': 'Sf', 'ag': 'Ag', 'zc': 'Zc', 'ml': 'Ml', 'mt': 'Mt', 'mc': 'Mc', 'lc': 'Lc', 'jo': 'Jo', 'at': 'At',
+            'rm': 'Rm', '1co': '1Co', '2co': '2Co', 'gl': 'Gl', 'ef': 'Ef', 'fp': 'Fp', 'cl': 'Cl', '1ts': '1Ts',
+            '2ts': '2Ts', '1tm': '1Tm', '2tm': '2Tm', 'tt': 'Tt', 'fm': 'Fm', 'hb': 'Hb', 'tg': 'Tg', '1pe': '1Pe',
+            '2pe': '2Pe', '1jo': '1Jo', '2jo': '2Jo', '3jo': '3Jo', 'jd': 'Jd', 'ap': 'Ap'
+        };
+
+        const LIVRO_PARA_PARTE = {};
+        Object.entries(DISTRIBUICAO_PARTES).forEach(([parte, livros]) => {
+            livros.forEach(livro => { LIVRO_PARA_PARTE[livro] = parseInt(parte); });
+        });
+
+        function obterParteDoLivro(livro) { return LIVRO_PARA_PARTE[livro] || 1; }
+
+        async function buscarDadosDaBiblia() {
+            const status = document.getElementById('statusApi');
+            const parteNecessaria = obterParteDoLivro(livroAtual);
+            if (parteCarregada === parteNecessaria && BIBLIA_DADOS) {
+                status.textContent = "📚 Bíblia Pronta";
+                return true;
+            }
+            try {
+                status.textContent = "⏳ Carregando...";
+                const resp = await fetch(`biblia_parte${parteNecessaria}.json`);
+                if (!resp.ok) throw new Error(`Erro ao carregar`);
+                BIBLIA_DADOS = await resp.json();
+                parteCarregada = parteNecessaria;
+                status.textContent = "📚 Bíblia Pronta";
+                return true;
+            } catch (e) {
+                status.textContent = "❌ Erro";
+                return false;
+            }
+        }
+
+        function renderizarVersiculos() {
+            const container = document.getElementById('conteudo');
+            if (!BIBLIA_DADOS) return;
+            const nomeNoJSON = LIVRO_PARA_NOME_JSON[livroAtual] || livroAtual;
+            const filtrados = BIBLIA_DADOS.filter(i => i.livro === nomeNoJSON && i.capitulo == capituloAtual);
+            if (filtrados.length === 0) {
+                container.innerHTML = `<div class="loading">Capítulo não encontrado.</div>`;
+                return;
+            }
+            filtrados.sort((a, b) => a.versiculo - b.versiculo);
+            container.innerHTML = filtrados.map(v => {
+                const textoLimpo = v.texto.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, " ").replace(/\r/g, "");
+                return `
+                    <div class="verso">
+                        <span><b>${v.versiculo}.</b> ${v.texto}</span>
+                        <button class="btn-nav ripple" style="width:38px;height:38px;font-size:1rem;margin-top:2px;flex-shrink:0;" onclick="falarVersiculo('${textoLimpo}', this)" title="Ouvir versículo">🔊</button>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('nomeLivroAtual').textContent = LIVROS_API[livroAtual].nome;
+            document.getElementById('infoCapitulo').textContent = `Cap. ${capituloAtual}`;
+            document.getElementById('btnAnterior').disabled = capituloAtual <= 1;
+            document.getElementById('btnProximo').disabled = capituloAtual >= LIVROS_API[livroAtual].capitulos;
+            document.querySelectorAll('.botao-livro').forEach(b => b.classList.toggle('selecionado', b.dataset.id === livroAtual));
+        }
+
+        window.mudarCapitulo = (dir) => {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            capituloAtual += dir;
+            document.getElementById('selectCapituloTopo').value = capituloAtual;
+            renderizarVersiculos();
+        };
+
+        window.aoMudarCapituloTopo = () => {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            capituloAtual = parseInt(document.getElementById('selectCapituloTopo').value);
+            renderizarVersiculos();
+        };
+
+        function montarSelect() {
+            const sel = document.getElementById('selectCapituloTopo');
+            sel.innerHTML = "";
+            for (let i = 1; i <= LIVROS_API[livroAtual].capitulos; i++) {
+                const o = document.createElement('option');
+                o.value = i;
+                o.textContent = `Cap. ${i}`;
+                sel.appendChild(o);
+            }
+            sel.value = capituloAtual;
+        }
+
+        // ==================== ÁUDIO DOS VERSÍCULOS (USANDO WEB SPEECH API) ====================
+        window.falarVersiculo = function(texto, botao) {
+            // Se o botão já está no modo "parar", interrompe a fala e reseta
+            if (botao.textContent === "🛑") {
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+                botao.textContent = "🔊";
+                return;
+            }
+
+            // Interrompe qualquer fala anterior
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+
+            // Reseta todos os botões de áudio para o ícone de play
+            document.querySelectorAll('.verso button').forEach(b => b.textContent = "🔊");
+
+            // Tenta usar a Web Speech API (nativa, offline e gratuita)
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(texto);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+
+                // Seleciona uma voz em português, se disponível
+                const voices = window.speechSynthesis.getVoices();
+                const ptVoice = voices.find(v => v.lang.startsWith('pt')) || voices[0];
+                if (ptVoice) utterance.voice = ptVoice;
+
+                botao.textContent = "🛑";
+
+                utterance.onend = () => {
+                    botao.textContent = "🔊";
+                };
+
+                utterance.onerror = () => {
+                    botao.textContent = "🔊";
+                    console.warn("Erro na síntese de voz. Tentando método alternativo...");
+                    // Fallback para Google TTS apenas se a API falhar
+                    usarGoogleTTS(texto, botao);
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                // Navegador não suporta SpeechSynthesis → usa Google TTS
+                usarGoogleTTS(texto, botao);
+            }
+        };
+
+        function usarGoogleTTS(texto, botao) {
+            botao.textContent = "⏳";
+            const urlAudio = "https://translate.google.com/translate_tts?ie=UTF-8&tl=pt-BR&client=tw-ob&q=" + encodeURIComponent(texto);
+            const audio = new Audio(urlAudio);
+            audio.onplay = () => { botao.textContent = "🛑"; };
+            audio.onended = () => { botao.textContent = "🔊"; };
+            audio.onerror = () => {
+                botao.textContent = "🔊";
+                console.error("Falha ao carregar áudio externo.");
+            };
+            audio.play().catch(() => {
+                botao.textContent = "🔊";
+            });
+        }
+
+        // Garante que a lista de vozes esteja carregada
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        function inicializarBiblia() {
+            const vt = document.getElementById('botoesVT');
+            const nt = document.getElementById('botoesNT');
+            Object.keys(LIVROS_API).forEach(key => {
+                const btn = document.createElement('div');
+                btn.className = 'botao-livro ripple';
+                btn.textContent = LIVROS_API[key].abrev;
+                btn.title = LIVROS_API[key].nome;
+                btn.dataset.id = key;
+                btn.onclick = async () => {
+                    if (window.speechSynthesis) window.speechSynthesis.cancel();
+                    livroAtual = key;
+                    capituloAtual = 1;
+                    montarSelect();
+                    document.getElementById('conteudo').innerHTML = '<div class="loading">Carregando...</div>';
+                    if (await buscarDadosDaBiblia()) renderizarVersiculos();
+                };
+                (LIVROS_API[key].testament === "VT" ? vt : nt).appendChild(btn);
+            });
+            montarSelect();
+            buscarDadosDaBiblia().then(ok => { if (ok) renderizarVersiculos(); });
+        }
+
+        // ============ LÓGICA DA AGENDA ============
+        let eventos = JSON.parse(localStorage.getItem("agendaEventosPremium")) || [];
+        let editandoId = null;
+        let idParaExcluir = null;
+
+        function gerarId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+        }
+
+        function salvarLocal() {
+            localStorage.setItem("agendaEventosPremium", JSON.stringify(eventos));
+        }
+
+        function mostrarToast(mensagem, tipo = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${tipo}`;
+            toast.textContent = mensagem;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+        }
+
+        function abrirModal(id) {
+            idParaExcluir = id;
+            const evento = eventos.find(e => e.id === id);
+            if (evento) {
+                document.getElementById('modalMensagem').textContent =
+                    `Deseja realmente excluir o evento "${evento.titulo}"? Esta ação não pode ser desfeita.`;
+            }
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            idParaExcluir = null;
+        }
+
+        function confirmarExclusao() {
+            if (idParaExcluir !== null) {
+                eventos = eventos.filter(e => e.id !== idParaExcluir);
+                salvarLocal();
+                renderizarEventos();
+                atualizarStatus();
+                mostrarToast('Evento excluído com sucesso.', 'warning');
+                if (editandoId === idParaExcluir) cancelarEdicao();
+            }
+            fecharModal();
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) fecharModal();
+        });
+
+        function atualizarStatus() {
+            document.getElementById('totalEventos').innerText = eventos.length;
+            const hoje = new Date().toISOString().split('T')[0];
+            let totalHoje = 0, totalFuturos = 0;
+            eventos.forEach(e => {
+                if (e.data === hoje) totalHoje++;
+                if (e.data > hoje || (e.data === hoje && e.hora >= new Date().toTimeString().slice(0, 5)))
+                    totalFuturos++;
+            });
+            document.getElementById('totalHoje').innerText = totalHoje;
+            document.getElementById('totalFuturos').innerText = totalFuturos;
+        }
+
+        function limparCampos() {
+            document.getElementById('titulo').value = '';
+            document.getElementById('data').value = '';
+            document.getElementById('hora').value = '';
+            document.getElementById('comentario').value = '';
+            document.getElementById('categoria').selectedIndex = 0;
+            editandoId = null;
+            const btnSave = document.getElementById('btnSave');
+            btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Evento';
+            btnSave.classList.remove('editing-mode');
+            document.getElementById('btnCancel').classList.remove('visible');
+        }
+
+        function cancelarEdicao() {
+            limparCampos();
+            mostrarToast('Edição cancelada.', 'info');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function salvarEvento() {
+            const titulo = document.getElementById('titulo').value.trim();
+            const data = document.getElementById('data').value;
+            const hora = document.getElementById('hora').value;
+            const categoria = document.getElementById('categoria').value;
+            const comentario = document.getElementById('comentario').value.trim();
+            if (!titulo || !data || !hora) {
+                mostrarToast('Preencha todos os campos obrigatórios: título, data e hora.', 'warning');
+                return;
+            }
+            if (editandoId !== null) {
+                const index = eventos.findIndex(e => e.id === editandoId);
+                if (index !== -1) {
+                    eventos[index].titulo = titulo;
+                    eventos[index].data = data;
+                    eventos[index].hora = hora;
+                    eventos[index].categoria = categoria;
+                    eventos[index].comentario = comentario;
+                    mostrarToast('Evento atualizado com sucesso!', 'success');
+                }
+                editandoId = null;
+            } else {
+                eventos.push({
+                    id: gerarId(),
+                    titulo,
+                    data,
+                    hora,
+                    categoria,
+                    comentario,
+                    criadoEm: new Date().toISOString()
+                });
+                mostrarToast('Evento registrado com sucesso!', 'success');
+            }
+            eventos.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
+            salvarLocal();
+            renderizarEventos();
+            atualizarStatus();
+            limparCampos();
+            if (window.innerWidth <= 900) switchMobileTab('list');
+        }
+
+        function editarEvento(id) {
+            const evento = eventos.find(e => e.id === id);
+            if (!evento) return;
+            document.getElementById('titulo').value = evento.titulo;
+            document.getElementById('data').value = evento.data;
+            document.getElementById('hora').value = evento.hora;
+            document.getElementById('categoria').value = evento.categoria;
+            document.getElementById('comentario').value = evento.comentario || '';
+            editandoId = id;
+            const btnSave = document.getElementById('btnSave');
+            btnSave.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Atualizar Evento';
+            btnSave.classList.add('editing-mode');
+            document.getElementById('btnCancel').classList.add('visible');
+            if (window.innerWidth <= 900) switchMobileTab('form');
+            document.getElementById('pageLeft').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function excluirEvento(id) { abrirModal(id); }
+
+        function retornarParaFormulario() {
+            if (window.innerWidth <= 900) switchMobileTab('form');
+            else document.getElementById('pageLeft').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function renderizarEventos() {
+            const lista = document.getElementById('listaEventos');
+            const busca = document.getElementById('buscar').value.toLowerCase().trim();
+            const hoje = new Date().toISOString().split('T')[0];
+            lista.innerHTML = '';
+            let filtrados = eventos.filter(e =>
+                e.titulo.toLowerCase().includes(busca) ||
+                e.categoria.toLowerCase().includes(busca) ||
+                (e.comentario && e.comentario.toLowerCase().includes(busca))
+            );
+            if (filtrados.length === 0) {
+                lista.innerHTML = `<div class="empty-state"><i class="fa-solid fa-book-bookmark"></i><p>${busca ? 'Nenhum evento encontrado.' : 'Nenhum evento registrado ainda.<br>Comece escrevendo na página ao lado!'}</p></div>`;
+                return;
+            }
+            filtrados.forEach(evento => {
+                const isPassado = evento.data < hoje;
+                let badgeClass = 'badge-trabalho', catIcon = '💼';
+                if (evento.categoria === 'Estudo') { badgeClass = 'badge-estudo'; catIcon = '📚'; }
+                if (evento.categoria === 'Pessoal') { badgeClass = 'badge-pessoal'; catIcon = '🌿'; }
+                if (evento.categoria === 'Importante') { badgeClass = 'badge-importante'; catIcon = '⭐'; }
+                const dataFormatada = new Date(evento.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                const card = document.createElement('div');
+                card.className = 'evento-card' + (isPassado ? ' passado' : '');
+                card.innerHTML = `
+                    <div class="evento-header">
+                        <span class="evento-titulo">${escapeHTML(evento.titulo)}</span>
+                        <span class="categoria-badge ${badgeClass}">${catIcon} ${evento.categoria}</span>
+                    </div>
+                    <div class="evento-info">
+                        <span><i class="fa-regular fa-calendar"></i> ${dataFormatada}</span>
+                        <span><i class="fa-regular fa-clock"></i> ${evento.hora}</span>
+                        ${isPassado ? '<span style="color:#e85d5d;"><i class="fa-solid fa-circle-check"></i> Passado</span>' : ''}
+                    </div>
+                    <div class="evento-comentario">${escapeHTML(evento.comentario || 'Sem descrição adicional.')}</div>
+                    <div class="evento-acoes">
+                        <button class="btn-edit" onclick="editarEvento('${evento.id}')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+                        <button class="btn-delete" onclick="excluirEvento('${evento.id}')"><i class="fa-solid fa-trash-can"></i> Excluir</button>
+                    </div>`;
+                lista.appendChild(card);
+            });
+        }
+
+        function atualizarRelogio() {
+            const agora = new Date();
+            document.getElementById('relogioDisplay').innerHTML =
+                `<i class="fa-regular fa-clock"></i>&nbsp; ${agora.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' })} • ${agora.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' })}`;
+        }
+
+        function switchMobileTab(tab) {
+            const pageLeft = document.getElementById('pageLeft');
+            const pageRight = document.getElementById('pageRight');
+            const tabs = document.querySelectorAll('.mobile-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            if (tab === 'form') {
+                pageLeft.classList.remove('collapsed-mobile');
+                pageRight.classList.add('collapsed-mobile');
+                tabs[0].classList.add('active');
+            } else {
+                pageLeft.classList.add('collapsed-mobile');
+                pageRight.classList.remove('collapsed-mobile');
+                tabs[1].classList.add('active');
+            }
+        }
+
+        function inicializarAgenda() {
+            eventos.sort((a, b) => a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora));
+            let migrou = false;
+            eventos.forEach(e => { if (!e.id) { e.id = gerarId(); e.criadoEm = e.criadoEm || new Date().toISOString(); migrou = true; } });
+            if (migrou) salvarLocal();
+            renderizarEventos();
+            atualizarStatus();
+            atualizarRelogio();
+            setInterval(atualizarRelogio, 1000);
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            if (window.innerWidth <= 900) switchMobileTab('form');
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (document.getElementById('modalOverlay').style.display === 'flex') fecharModal();
+                    else if (editandoId !== null) cancelarEdicao();
+                }
+            });
+        }
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 900) {
+                const pl = document.getElementById('pageLeft'), pr = document.getElementById('pageRight');
+                if (!pl.classList.contains('collapsed-mobile') && !pr.classList.contains('collapsed-mobile'))
+                    switchMobileTab('form');
+            } else {
+                document.getElementById('pageLeft').classList.remove('collapsed-mobile');
+                document.getElementById('pageRight').classList.remove('collapsed-mobile');
+            }
+            renderizarEventos();
+        });
+
+        // ==================== INICIALIZAÇÃO GLOBAL ====================
+        window.onload = function() {
+            inicializarBiblia();
+            inicializarAgenda();
+        };
+
+        console.log('%c📖 Bíblia + Agenda Integradas %c✨', 'font-size:1.2em;color:#f5d78c;', 'color:#888;');
+    </script>
+</body>
+</html>
